@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { useGraphStore } from '../store/graphStore';
 import type { DataPoint } from '../store/graphStore';
-import { Plus, Trash2, PieChart, BarChart3, Edit3, X, Save, Printer } from 'lucide-react';
+import { Plus, Trash2, PieChart, BarChart3, Edit3, X, Image as ImageIcon, Printer } from 'lucide-react';
 
 const GraphBuilderPage: React.FC = () => {
   const {
     title, chartType, xAxisName, yAxisName, dataPoints,
     setTitle, setChartType, setAxisNames, addDataPoint, updateDataPoint, removeDataPoint,
-    loadTemplate, loadFromDb, exportToComputer
+    loadTemplate, loadFromDb
   } = useGraphStore();
 
   const [drilldownModal, setDrilldownModal] = useState<{ isOpen: boolean; data: DataPoint | null }>({ isOpen: false, data: null });
   const [isPrinting, setIsPrinting] = useState(false);
+  const echartsRef = useRef<any>(null);
 
   useEffect(() => {
     loadFromDb();
@@ -24,6 +25,24 @@ const GraphBuilderPage: React.FC = () => {
       window.print();
       setIsPrinting(false);
     }, 500);
+  };
+
+  const handleExportPNG = () => {
+    if (echartsRef.current) {
+      const echartsInstance = echartsRef.current.getEchartsInstance();
+      const dataURL = echartsInstance.getDataURL({
+        type: 'png',
+        pixelRatio: 2,
+        backgroundColor: '#0b0f19'
+      });
+      
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `socforge-graph-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const handleChartClick = (params: any) => {
@@ -143,8 +162,8 @@ const GraphBuilderPage: React.FC = () => {
           <p className="text-cyber-muted font-medium mt-1">Design daily intelligence graphs with manual data entry and drill-down insights.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => { exportToComputer(); }} className="flex items-center gap-2 bg-cyber-card border border-cyber-border px-4 py-2 rounded-lg text-cyber-text hover:text-cyber-primary transition-colors">
-            <Save className="w-4 h-4" /> Save Graph (JSON)
+          <button onClick={handleExportPNG} className="flex items-center gap-2 bg-cyber-card border border-cyber-border px-4 py-2 rounded-lg text-cyber-text hover:text-cyber-primary transition-colors">
+            <ImageIcon className="w-4 h-4" /> Save Graph (PNG)
           </button>
           <button onClick={handlePrint} className="flex items-center gap-2 bg-cyber-primary/20 text-cyber-primary border border-cyber-primary/50 px-5 py-2.5 rounded-lg font-bold hover:bg-cyber-primary hover:text-cyber-bg transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)]">
             <Printer className="w-4 h-4" /> Export
@@ -251,6 +270,7 @@ const GraphBuilderPage: React.FC = () => {
             <p className="text-cyber-muted text-sm text-center mb-2 print:hidden italic">Click on any bar or slice to view drill-down intelligence.</p>
             <div className="flex-1 w-full bg-black/20 rounded-xl border border-cyber-border/30 print:bg-transparent print:border-none">
               <ReactECharts 
+                ref={echartsRef}
                 option={getChartOption()} 
                 style={{ height: '100%', minHeight: '550px', width: '100%' }} 
                 onEvents={{ click: handleChartClick }}

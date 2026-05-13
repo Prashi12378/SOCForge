@@ -27,7 +27,6 @@ interface GraphState {
   loadTemplate: (templateName: string) => void;
   saveToDb: () => Promise<void>;
   loadFromDb: () => Promise<void>;
-  exportToComputer: () => void;
 }
 
 const templates: Record<string, Partial<GraphState>> = {
@@ -147,27 +146,5 @@ export const useGraphStore = create<GraphState>((set, get) => ({
     if (saved) {
       set({ ...saved });
     }
-  },
-
-  exportToComputer: () => {
-    const state = get();
-    const data = {
-      title: state.title,
-      chartType: state.chartType,
-      xAxisName: state.xAxisName,
-      yAxisName: state.yAxisName,
-      dataPoints: state.dataPoints,
-      exportedAt: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `socforge-graph-${state.title.toLowerCase().replace(/\s+/g, '-')}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   }
 }));
