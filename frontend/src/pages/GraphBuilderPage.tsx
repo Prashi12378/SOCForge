@@ -8,7 +8,7 @@ const GraphBuilderPage: React.FC = () => {
   const {
     title, chartType, xAxisName, yAxisName, dataPoints,
     setTitle, setChartType, setAxisNames, addDataPoint, updateDataPoint, removeDataPoint,
-    loadTemplate, loadFromDb, saveToDb, exportToComputer
+    loadTemplate, loadFromDb, exportToComputer
   } = useGraphStore();
 
   const [drilldownModal, setDrilldownModal] = useState<{ isOpen: boolean; data: DataPoint | null }>({ isOpen: false, data: null });
