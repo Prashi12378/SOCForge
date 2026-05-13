@@ -1,0 +1,22 @@
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vscode/
+
+# Python / Backend
+__pycache__/
+backend/__pycache__/
+backend/.venv/
+backend/storage/uploads/*
+backend/storage/reports/*
+backend/storage/images/*
+backend/storage/exports/*
+!backend/storage/.gitkeep
+
+# Env files
+.env
+.env.local
+
+# OS
+.DS_Store

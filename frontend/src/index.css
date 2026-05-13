@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cyber-bg: #0b0f19;
+  --color-cyber-card: #151a28;
+  --color-cyber-border: #2a3441;
+  --color-cyber-primary: #00f0ff;
+  --color-cyber-secondary: #ff003c;
+  --color-cyber-accent: #bf00ff;
+  --color-cyber-text: #e2e8f0;
+  --color-cyber-muted: #94a3b8;
+  --font-sans: 'Outfit', sans-serif;
+  
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+  --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-cyber-bg text-cyber-text antialiased font-sans;
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.05), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(191, 0, 255, 0.05), transparent 25%);
+    background-attachment: fixed;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-cyber-border rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-cyber-primary;
+}
+
+/* Glass panel utility */
+.glass-panel {
+  @apply bg-cyber-card/60 backdrop-blur-md border border-cyber-border/50 shadow-xl;
+}
+
+@media print {
+  @page { margin: 10mm; }
+  
+  html, body, #root {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+  
+  aside {
+    display: none !important;
+  }
+  
+  main, div {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  .glass-panel {
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

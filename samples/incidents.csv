@@ -1,0 +1,9 @@
+timestamp,severity,source_ip,destination_ip,hostname,username,event_type,status,description
+2026-05-11 10:00:00,Critical,192.168.1.100,10.0.5.21,server-dc1,admin,Multiple Failed Logins,Blocked,Detected 50 failed login attempts in 1 minute
+2026-05-11 10:05:00,High,10.0.5.45,192.168.1.5,workstation-22,jdoe,Malware Detection,Quarantined,Ransomware signature matched in downloads folder
+2026-05-11 10:15:00,Medium,172.16.0.5,8.8.8.8,server-web,system,Outbound DNS Anomaly,Allowed,Unusual volume of DNS requests to external server
+2026-05-11 10:30:00,Low,192.168.1.50,10.0.5.10,workstation-11,bsmith,Policy Violation,Blocked,Attempted access to restricted file share
+2026-05-11 10:45:00,High,203.0.113.5,10.0.5.21,server-dc1,unknown,Port Scan,Blocked,External IP scanning common service ports
+2026-05-11 11:00:00,Critical,10.0.5.60,192.168.1.200,db-server-1,sql_admin,Privilege Escalation,Alerted,Service account attempted to modify system registry
+2026-05-11 11:15:00,Medium,192.168.1.15,10.0.5.80,workstation-05,sjones,Suspicious Process,Terminated,PowerShell script executed with bypass execution policy
+2026-05-11 11:30:00,Low,172.16.0.10,10.0.5.21,server-dc1,admin,Successful Login,Allowed,Admin login from unusual internal subnet
