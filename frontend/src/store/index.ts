@@ -108,9 +108,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       const { kpis, severity_distribution, recent_alerts } = response.data;
       
       set({
-        kpis,
-        severityDistribution: severity_distribution,
-        recentAlerts: recent_alerts,
+        kpis: kpis || { total_incidents: 0, critical_alerts: 0 },
+        severityDistribution: severity_distribution || [],
+        recentAlerts: recent_alerts || [],
         isLoading: false
       });
       return;
