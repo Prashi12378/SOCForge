@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
+import * as echarts from 'echarts';
 import { useGraphStore } from '../store/graphStore';
 import type { DataPoint } from '../store/graphStore';
 import { Plus, Trash2, PieChart, BarChart3, Edit3, X, Image as ImageIcon, Printer, ChevronDown } from 'lucide-react';
@@ -38,22 +39,56 @@ const GraphBuilderPage: React.FC = () => {
     }, 500);
   };
 
-  const handleExportPNG = (pixelRatio: number = 2) => {
+  const handleExportPNG = (width?: number, height?: number) => {
     if (echartsRef.current) {
       const echartsInstance = echartsRef.current.getEchartsInstance();
-      const dataURL = echartsInstance.getDataURL({
-        type: 'png',
-        pixelRatio: pixelRatio,
-        backgroundColor: '#0b0f19'
+      const options = echartsInstance.getOption();
+      
+      // Create a temporary hidden container
+      const tempDiv = document.createElement('div');
+      // Set fixed dimensions for the export
+      const targetWidth = width || 1200;
+      const targetHeight = height || 800;
+      
+      tempDiv.style.width = targetWidth + 'px';
+      tempDiv.style.height = targetHeight + 'px';
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '-9999px';
+      document.body.appendChild(tempDiv);
+      
+      // Initialize a new chart instance in the hidden div
+      const tempChart = echarts.init(tempDiv, null, {
+        width: targetWidth,
+        height: targetHeight,
+        devicePixelRatio: 2 // High quality capture
       });
       
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `socforge-graph-${title.toLowerCase().replace(/\s+/g, '-')}-${pixelRatio}x.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setIsExportMenuOpen(false);
+      // Copy options and render
+      tempChart.setOption(options);
+      
+      // Give it a tiny moment to render labels etc.
+      setTimeout(() => {
+        // Export to Data URL
+        const dataURL = tempChart.getDataURL({
+          type: 'png',
+          pixelRatio: 1, 
+          backgroundColor: '#0b0f19'
+        });
+        
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = `socforge-graph-${title.toLowerCase().replace(/\s+/g, '-')}-${targetWidth}x${targetHeight}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Cleanup
+        tempChart.dispose();
+        document.body.removeChild(tempDiv);
+        setIsExportMenuOpen(false);
+      }, 100);
     }
   };
 
@@ -188,21 +223,21 @@ const GraphBuilderPage: React.FC = () => {
               <div className="absolute right-0 mt-2 w-48 glass-panel border border-cyber-primary/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
                 <div className="bg-cyber-card/90 p-2 space-y-1">
                   <div className="px-3 py-1 text-[10px] font-bold text-cyber-muted uppercase tracking-widest border-b border-cyber-border/30 mb-1">Select Export Size</div>
-                  <button onClick={() => handleExportPNG(1)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>Standard (1x)</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">720p</span>
+                  <button onClick={() => handleExportPNG(800, 600)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>Web Standard</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">800 x 600</span>
                   </button>
-                  <button onClick={() => handleExportPNG(2)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>HD Quality (2x)</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">1080p</span>
+                  <button onClick={() => handleExportPNG(1280, 720)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>Large / HD</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">1280 x 720</span>
                   </button>
-                  <button onClick={() => handleExportPNG(4)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>Ultra HD (4x)</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">4K</span>
+                  <button onClick={() => handleExportPNG(1920, 1080)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>Full HD</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">1920 x 1080</span>
                   </button>
-                  <button onClick={() => handleExportPNG(8)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>Print Ready (8x)</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">8K+</span>
+                  <button onClick={() => handleExportPNG(3840, 2160)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>4K Ultra HD</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">3840 x 2160</span>
                   </button>
                 </div>
               </div>
