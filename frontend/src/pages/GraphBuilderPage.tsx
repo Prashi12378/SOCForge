@@ -220,25 +220,67 @@ const GraphBuilderPage: React.FC = () => {
             </button>
             
             {isExportMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 glass-panel border border-cyber-primary/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
-                <div className="bg-cyber-card/90 p-2 space-y-1">
-                  <div className="px-3 py-1 text-[10px] font-bold text-cyber-muted uppercase tracking-widest border-b border-cyber-border/30 mb-1">Select Export Size</div>
-                  <button onClick={() => handleExportPNG(800, 600)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>Web Standard</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">800 x 600</span>
-                  </button>
-                  <button onClick={() => handleExportPNG(1280, 720)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>Large / HD</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">1280 x 720</span>
-                  </button>
-                  <button onClick={() => handleExportPNG(1920, 1080)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>Full HD</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">1920 x 1080</span>
-                  </button>
-                  <button onClick={() => handleExportPNG(3840, 2160)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
-                    <span>4K Ultra HD</span>
-                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity whitespace-nowrap">3840 x 2160</span>
-                  </button>
+              <div className="absolute right-0 mt-2 w-64 glass-panel border border-cyber-primary/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
+                <div className="bg-cyber-card/95 max-h-[400px] overflow-y-auto custom-scrollbar">
+                  <div className="p-2 space-y-4">
+                    {/* Presentation & Desktop */}
+                    <div>
+                      <div className="px-3 py-1 text-[10px] font-bold text-cyber-primary uppercase tracking-widest border-b border-cyber-border/30 mb-1">Presentation & Desktop</div>
+                      <div className="space-y-1">
+                        {[
+                          { w: 1920, h: 1080, label: 'Full HD' },
+                          { w: 2560, h: 1440, label: '2K / QHD' },
+                          { w: 1600, h: 900, label: 'HD+' },
+                          { w: 1280, h: 720, label: 'HD' },
+                          { w: 1024, h: 768, label: 'XGA' },
+                          { w: 800, h: 600, label: 'SVGA' },
+                          { w: 600, h: 400, label: 'Small' }
+                        ].map(s => (
+                          <button key={`${s.w}x${s.h}`} onClick={() => handleExportPNG(s.w, s.h)} className="w-full text-left px-3 py-1.5 text-xs text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                            <span>{s.label}</span>
+                            <span className="text-[9px] opacity-50 group-hover:opacity-100">{s.w}x{s.h}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Social Media */}
+                    <div>
+                      <div className="px-3 py-1 text-[10px] font-bold text-cyber-primary uppercase tracking-widest border-b border-cyber-border/30 mb-1">Social Media</div>
+                      <div className="space-y-1">
+                        {[
+                          { w: 1080, h: 1080, label: 'Instagram Square' },
+                          { w: 1080, h: 1350, label: 'Instagram Portrait' },
+                          { w: 1080, h: 1920, label: 'Story / Reel' },
+                          { w: 1200, h: 628, label: 'FB / LinkedIn' },
+                          { w: 1200, h: 675, label: 'Twitter / X' }
+                        ].map(s => (
+                          <button key={`${s.w}x${s.h}`} onClick={() => handleExportPNG(s.w, s.h)} className="w-full text-left px-3 py-1.5 text-xs text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                            <span>{s.label}</span>
+                            <span className="text-[9px] opacity-50 group-hover:opacity-100">{s.w}x{s.h}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Print & Document */}
+                    <div>
+                      <div className="px-3 py-1 text-[10px] font-bold text-cyber-primary uppercase tracking-widest border-b border-cyber-border/30 mb-1">Print & Document</div>
+                      <div className="space-y-1">
+                        {[
+                          { w: 2480, h: 3508, label: 'A4 Page (300 DPI)' },
+                          { w: 2550, h: 3300, label: 'Letter (300 DPI)' },
+                          { w: 2100, h: 1500, label: 'Large Print (4:3)' },
+                          { w: 1050, h: 750, label: 'Small Print (4:3)' }
+                        ].map(s => (
+                          <button key={`${s.w}x${s.h}`} onClick={() => handleExportPNG(s.w, s.h)} className="w-full text-left px-3 py-1.5 text-xs text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                            <span>{s.label}</span>
+                            <span className="text-[9px] opacity-50 group-hover:opacity-100">{s.w}x{s.h}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
