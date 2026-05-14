@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { useGraphStore } from '../store/graphStore';
 import type { DataPoint } from '../store/graphStore';
-import { Plus, Trash2, PieChart, BarChart3, Edit3, X, Image as ImageIcon, Printer } from 'lucide-react';
+import { Plus, Trash2, PieChart, BarChart3, Edit3, X, Image as ImageIcon, Printer, ChevronDown } from 'lucide-react';
 
 const GraphBuilderPage: React.FC = () => {
   const {
@@ -11,9 +11,20 @@ const GraphBuilderPage: React.FC = () => {
     loadTemplate, loadFromDb
   } = useGraphStore();
 
-  const [drilldownModal, setDrilldownModal] = useState<{ isOpen: boolean; data: DataPoint | null }>({ isOpen: false, data: null });
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const echartsRef = useRef<any>(null);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     loadFromDb();
@@ -27,23 +38,26 @@ const GraphBuilderPage: React.FC = () => {
     }, 500);
   };
 
-  const handleExportPNG = () => {
+  const handleExportPNG = (pixelRatio: number = 2) => {
     if (echartsRef.current) {
       const echartsInstance = echartsRef.current.getEchartsInstance();
       const dataURL = echartsInstance.getDataURL({
         type: 'png',
-        pixelRatio: 2,
+        pixelRatio: pixelRatio,
         backgroundColor: '#0b0f19'
       });
       
       const link = document.createElement('a');
       link.href = dataURL;
-      link.download = `socforge-graph-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
+      link.download = `socforge-graph-${title.toLowerCase().replace(/\s+/g, '-')}-${pixelRatio}x.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setIsExportMenuOpen(false);
     }
   };
+
+  const [drilldownModal, setDrilldownModal] = useState<{ isOpen: boolean; data: DataPoint | null }>({ isOpen: false, data: null });
 
   const handleChartClick = (params: any) => {
     const clickedData = dataPoints.find(dp => dp.label === params.name);
@@ -162,9 +176,38 @@ const GraphBuilderPage: React.FC = () => {
           <p className="text-cyber-muted font-medium mt-1">Design daily intelligence graphs with manual data entry and drill-down insights.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleExportPNG} className="flex items-center gap-2 bg-cyber-card border border-cyber-border px-4 py-2 rounded-lg text-cyber-text hover:text-cyber-primary transition-colors">
-            <ImageIcon className="w-4 h-4" /> Save Graph (PNG)
-          </button>
+          <div className="relative" ref={exportMenuRef}>
+            <button 
+              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)} 
+              className="flex items-center gap-2 bg-cyber-card border border-cyber-border px-4 py-2 rounded-lg text-cyber-text hover:text-cyber-primary transition-colors h-full"
+            >
+              <ImageIcon className="w-4 h-4" /> Save PNG <ChevronDown className={`w-4 h-4 transition-transform ${isExportMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isExportMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 glass-panel border border-cyber-primary/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
+                <div className="bg-cyber-card/90 p-2 space-y-1">
+                  <div className="px-3 py-1 text-[10px] font-bold text-cyber-muted uppercase tracking-widest border-b border-cyber-border/30 mb-1">Select Export Size</div>
+                  <button onClick={() => handleExportPNG(1)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>Standard (1x)</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">720p</span>
+                  </button>
+                  <button onClick={() => handleExportPNG(2)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>HD Quality (2x)</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">1080p</span>
+                  </button>
+                  <button onClick={() => handleExportPNG(4)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>Ultra HD (4x)</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">4K</span>
+                  </button>
+                  <button onClick={() => handleExportPNG(8)} className="w-full text-left px-4 py-2 text-sm text-cyber-text hover:bg-cyber-primary/10 hover:text-cyber-primary rounded-lg transition-colors flex justify-between items-center group">
+                    <span>Print Ready (8x)</span>
+                    <span className="text-[9px] bg-cyber-bg border border-cyber-border px-1.5 py-0.5 rounded opacity-50 group-hover:opacity-100 transition-opacity">8K+</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button onClick={handlePrint} className="flex items-center gap-2 bg-cyber-primary/20 text-cyber-primary border border-cyber-primary/50 px-5 py-2.5 rounded-lg font-bold hover:bg-cyber-primary hover:text-cyber-bg transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)]">
             <Printer className="w-4 h-4" /> Export
           </button>
