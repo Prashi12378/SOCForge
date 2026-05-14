@@ -41,8 +41,8 @@ const GraphBuilderPage: React.FC = () => {
 
   const handleExportPNG = (width?: number, height?: number) => {
     if (echartsRef.current) {
-      const echartsInstance = echartsRef.current.getEchartsInstance();
-      const options = echartsInstance.getOption();
+      // Use getChartOption() to get fresh options instead of internal state
+      const options = getChartOption();
       
       // Create a temporary hidden container
       const tempDiv = document.createElement('div');
@@ -64,10 +64,13 @@ const GraphBuilderPage: React.FC = () => {
         devicePixelRatio: 2 // High quality capture
       });
       
-      // Copy options and render
-      tempChart.setOption(options);
+      // Copy options and render with animations DISABLED
+      tempChart.setOption({
+        ...options,
+        animation: false // CRITICAL: Disable animation for instant capture
+      });
       
-      // Give it a tiny moment to render labels etc.
+      // Give it a tiny moment to ensure DOM and Canvas are synchronized
       setTimeout(() => {
         // Export to Data URL
         const dataURL = tempChart.getDataURL({
@@ -88,7 +91,7 @@ const GraphBuilderPage: React.FC = () => {
         tempChart.dispose();
         document.body.removeChild(tempDiv);
         setIsExportMenuOpen(false);
-      }, 100);
+      }, 50);
     }
   };
 
